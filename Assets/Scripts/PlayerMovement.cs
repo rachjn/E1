@@ -17,6 +17,9 @@ public class PlayerMovement : MonoBehaviour
     float dashingCooldown = 0.8f;
     [SerializeField] TrailRenderer tr;
     bool doubleJump;
+    bool isFacingRight = true;
+
+    Animator anim;
 
 
 
@@ -24,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -34,6 +38,9 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
         Move(direction);
+        if ((isFacingRight && direction == -1) || (!isFacingRight && direction == 1)) {
+            Flip();
+        }
     }
     void OnMove(InputValue value) {
         float v = value.Get<float>();
@@ -42,6 +49,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Move(float dir) {
         rb.velocity = new Vector2(dir * speed, rb.velocity.y);
+        anim.SetBool("isRunning", dir != 0);
     }
 
     void OnJump() {
@@ -98,6 +106,13 @@ public class PlayerMovement : MonoBehaviour
         isDashing = false;
         yield return new WaitForSeconds(dashingCooldown);
         canDash = true;
+    }
+
+    private void Flip() {
+        isFacingRight = !isFacingRight;
+        Vector3 newLocalScale = transform.localScale;
+        newLocalScale.x *= -1f;
+        transform.localScale = newLocalScale;
     }
     
 }
